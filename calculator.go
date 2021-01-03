@@ -2,6 +2,7 @@
 package calculator
 
 import "fmt"
+import "math"
 
 // Add takes two numbers and returns the result of adding them together.
 func Add(a, b float64) float64 {
@@ -30,7 +31,10 @@ func Divide(a, b float64) (float64, error) {
 	}
 }
 
-func Sqrt(a float64) float64 {
-	return 1
+func Sqrt(a float64) (float64, error) {
+	if a < 0 {
+		return 0, fmt.Errorf("bad input, %f (Square root of negative)", a)
+	}
+	return math.Sqrt(a), nil
 }
 
