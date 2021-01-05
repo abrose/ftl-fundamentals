@@ -5,14 +5,22 @@ import "fmt"
 import "math"
 
 // Add takes two numbers and returns the result of adding them together.
-func Add(a, b float64) float64 {
-	return a + b
+func Add(inputs ...float64) float64 {
+	total := 0.0
+	for _, input := range inputs {
+		total += input
+	}
+	return total
 }
 
 // Subtract takes two numbers and returns the result of subtracting the second
 // from the first.
-func Subtract(a, b float64) float64 {
-	return a - b
+func Subtract(inputs ...float64) float64 {
+	total := inputs[0]
+	for _, input := range inputs[1:] {
+		total -= input
+	}
+	return total
 }
 
 // Multiply takes two numbers and returns the result of multiplying the first with
@@ -38,3 +46,33 @@ func Sqrt(a float64) (float64, error) {
 	return math.Sqrt(a), nil
 }
 
+// This function takes a string expression of the format %f (+|-|/|*) %f and evaluates it
+func Evaluate(expression string) (float64, error) {
+	var operandOne, operandTwo float64
+	var operator string
+	var err error
+
+	_, err = fmt.Sscanf(expression, "%f %s %f", &operandOne, &operator, &operandTwo)
+
+	if err != nil {
+		return 0, err
+	}
+
+	var result float64
+
+	switch operator {
+	case "+":
+		result = Add(operandOne, operandTwo)
+	case "-":
+		result = Subtract(operandOne, operandTwo)
+	case "/":
+		result, err = Divide(operandOne, operandTwo)
+	case "*":
+		result = Multiply(operandOne, operandTwo)
+	default:
+		result = 0
+		err = fmt.Errorf("bad input, can not evaluate (%s)", expression)
+	}
+
+	return result, err
+}

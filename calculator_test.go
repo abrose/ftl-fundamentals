@@ -10,18 +10,19 @@ func TestAdd(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		a, b float64
-		want float64
+		inputs []float64
+		want   float64
 	}
 
 	testCases := []testCase{
-		{a: 2, b: 2, want: 4},
-		{a: 1, b: 1, want: 2},
-		{a: 5, b: 0, want: 5},
+		{inputs: []float64{2, 4, 6}, want: 12},
+		{inputs: []float64{-2, -4, -6}, want: -12},
+		{inputs: []float64{10, 5, 3, 7, 5, 20}, want: 50},
+		{inputs: []float64{10, 5, 3, 7, 5, 20, 7, 5}, want: 62},
 	}
 
 	for _, tc := range testCases {
-		got := calculator.Add(tc.a, tc.b)
+		got := calculator.Add(tc.inputs...)
 		if tc.want != got {
 			t.Errorf("want %f, got %f", tc.want, got)
 		}
@@ -46,23 +47,22 @@ func TestSubtract(t *testing.T) {
 	t.Parallel()
 
 	type testCase struct {
-		a, b float64
-		want float64
+		inputs []float64
+		want   float64
 	}
 
 	testCases := []testCase{
-		{a: 5, b: 3, want: 2},
-		{a: 5.4, b: 1.2, want: 4.2},
-		{a: 1.5, b: 3, want: -1.5},
+		{inputs: []float64{10, 3, 5, 5}, want: -3},
+		{inputs: []float64{10, 3, 5, 5, -10, 13}, want: -6},
+		{inputs: []float64{10, 3, 5, 5, -10}, want: 7},
 	}
 
 	for _, tc := range testCases {
-		got := calculator.Subtract(tc.a, tc.b)
+		got := calculator.Subtract(tc.inputs...)
 		if tc.want != got {
 			t.Errorf("want %f, got %f", tc.want, got)
 		}
 	}
-
 }
 
 func TestMultiply(t *testing.T) {
@@ -137,14 +137,46 @@ func TestSqrt(t *testing.T) {
 
 	for _, tc := range testCases {
 		got, err := calculator.Sqrt(tc.a)
-		
+
 		if tc.errExpected != (err != nil) {
 			t.Fatalf("Sqrt (%f): Unexpected error status: %v", tc.a, err)
-		} 
+		}
 
 		if got != tc.want {
 			t.Errorf("want %f, got %f", tc.want, got)
 		}
 	}
+}
 
+func TestEvaluate(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		expr        string
+		want        float64
+		errExpected bool
+	}
+
+	testCases := []testCase{
+		{expr: "2 + 4", want: 6, errExpected: false},
+		{expr: "-2 + 4", want: 2, errExpected: false},
+		{expr: "2 / 0", want: 0, errExpected: true},
+		{expr: "20 / 5", want: 4, errExpected: false},
+		{expr: "20/ 5", want: 0, errExpected: true},
+		{expr: "20 /5", want: 0, errExpected: true},
+		{expr: "20 * 5", want: 100, errExpected: false},
+		{expr: "20 - 5", want: 15, errExpected: false},
+	}
+
+	for _, tc := range testCases {
+		got, err := calculator.Evaluate(tc.expr)
+
+		if tc.errExpected != (err != nil) {
+			t.Fatalf("Evaluate %s: Unexpected error status: %v", tc.expr, err)
+		}
+
+		if got != tc.want {
+			t.Errorf("Evaluate: want %f, got %f", tc.want, got)
+		}
+	}
 }
